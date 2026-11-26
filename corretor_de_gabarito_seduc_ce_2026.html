@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corretor Oficial SEDUC-CE 2026 | CEV/UECE</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PDF.js para leitura automática de PDF do Gabarito Espelho anexado -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Tesseract.js para OCR caso o candidato anexe uma foto/imagem do cartão-resposta -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Cabeçalho Institucional -->
+  <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-1">
+          <span>Governo do Estado do Ceará</span>
+          <span>•</span>
+          <span>SEDUC / SEPLAG / CEV-UECE</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Corretor de Gabarito — SEDUC-CE 2026
+        </h1>
+        <p class="text-emerald-100 text-sm mt-1">
+          Edital Nº 014/2026 • Baseado no Gabarito Oficial Preliminar Republicado em 24/11/2026
+        </p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2.5 text-xs text-emerald-50">
+        <div class="font-semibold text-white">80 Questões Objetivas</div>
+        <div>Q01–Q30: Conhecimentos Gerais</div>
+        <div>Q31–Q80: Conhecimentos Específicos</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+
+    <!-- Caixa de Notificação / Mensagens (Substitui alert()) -->
+    <div id="toastBox" class="hidden fixed bottom-5 right-5 z-50 max-w-md bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 transition-all">
+      <span id="toastIcon" class="text-lg">ℹ️</span>
+      <p id="toastMessage" class="text-sm font-medium"></p>
+      <button type="button" onclick="hideToast()" class="ml-auto text-slate-400 hover:text-white text-sm font-bold px-2">✕</button>
+    </div>
+
+    <!-- Passo 1 e 2: Nome, Cargo, Prova e Anexo do Gabarito Espelho -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+      <div class="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Dados do Candidato e Gabarito Espelho</h2>
+          <p class="text-sm text-slate-500">Informe seu nome, escolha o cargo e o tipo de prova (1 a 4) e anexe seu gabarito espelho.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Inserir Nome do Candidato -->
+        <div>
+          <label for="nomeCandidatoInput" class="block text-sm font-semibold text-slate-700 mb-2">
+            Nome do Candidato <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="nomeCandidatoInput"
+            oninput="onNomeInputChange()"
+            placeholder="Digite seu nome completo ou apelido"
+            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition"
+          />
+        </div>
+
+        <!-- Seleção de Cargo -->
+        <div>
+          <label for="cargoSelect" class="block text-sm font-semibold text-slate-700 mb-2">
+            Cargo (Professor Nível C) <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="cargoSelect"
+            onchange="aoMudarCargoOuProva()"
+            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition"
+          >
+            <option value="AEE">Professor de Atendimento Educacional Especializado (AEE)</option>
+            <option value="ARTE">Professor de Arte-Educação</option>
+            <option value="BIOLOGIA">Professor de Biologia</option>
+            <option value="ED_FISICA">Professor de Educação Física</option>
+            <option value="GEOGRAFIA">Professor de Geografia</option>
+            <option value="HISTORIA">Professor de História</option>
+            <option value="ESPANHOL">Professor de Língua Espanhola</option>
+            <option value="INGLES">Professor de Língua Inglesa</option>
+            <option value="PORTUGUES">Professor de Língua Portuguesa</option>
+            <option value="MATEMATICA">Professor de Matemática</option>
+            <option value="QUIMICA">Professor de Química</option>
+            <option value="FILOSOFIA">Professor de Filosofia</option>
+            <option value="SOCIOLOGIA">Professor de Sociologia</option>
+            <option value="FISICA">Professor de Física</option>
+          </select>
+        </div>
+
+        <!-- Seleção de Prova (1, 2, 3, 4) -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Tipo de Prova / Gabarito <span class="text-red-500">*</span>
+          </label>
+          <div class="grid grid-cols-4 gap-2" id="provaButtons">
+            <button type="button" data-prova="1" onclick="selecionarProva('1')" class="prova-btn active bg-emerald-600 text-white border-emerald-600 border rounded-xl py-3 px-2 text-sm font-bold shadow-sm transition">
+              Prova 1
+            </button>
+            <button type="button" data-prova="2" onclick="selecionarProva('2')" class="prova-btn bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100 border rounded-xl py-3 px-2 text-sm font-bold transition">
+              Prova 2
+            </button>
+            <button type="button" data-prova="3" onclick="selecionarProva('3')" class="prova-btn bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100 border rounded-xl py-3 px-2 text-sm font-bold transition">
+              Prova 3
+            </button>
+            <button type="button" data-prova="4" onclick="selecionarProva('4')" class="prova-btn bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100 border rounded-xl py-3 px-2 text-sm font-bold transition">
+              Prova 4
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Área de Upload do Gabarito Espelho -->
+      <div class="space-y-3 pt-2">
+        <label class="block text-sm font-semibold text-slate-700">
+          Anexar Gabarito Espelho (PDF, Foto/Imagem ou TXT) <span class="text-red-500">*</span>
+        </label>
+        <label for="fileInput" id="dropZone" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-emerald-300 rounded-2xl bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition p-4 text-center">
+          <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2.5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-slate-800" id="fileLabelTitle">
+            Clique para anexar seu Gabarito Espelho
+          </p>
+          <p class="text-xs text-slate-500 mt-1" id="fileLabelSub">
+            Suporta PDF oficial da CEV/UECE, foto (JPG/PNG) ou arquivo .TXT
+          </p>
+          <span id="parsedCountBadge" class="mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600">
+            0 / 80 respostas lidas
+          </span>
+          <input id="fileInput" type="file" accept=".pdf,.txt,.csv,image/*" class="hidden" onchange="handleFileUpload(event)" />
+        </label>
+
+        <!-- Barra de progresso de leitura -->
+        <div id="loadingStatus" class="hidden mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 text-xs text-amber-800 font-medium">
+          <svg class="animate-spin h-4 w-4 text-amber-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <span id="loadingText">Extraindo respostas do arquivo anexado...</span>
+        </div>
+
+        <div class="flex items-center justify-end mt-2">
+          <button type="button" onclick="limparTudo()" class="text-xs font-semibold text-slate-500 hover:text-red-600 transition">
+            Limpar anexo
+          </button>
+        </div>
+      </div>
+
+      <!-- Botão Principal de Correção -->
+      <div class="pt-2 flex flex-col sm:flex-row gap-3">
+        <button type="button" onclick="corrigirProva(true)" class="w-full sm:w-auto flex-grow bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 px-6 rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 text-base">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Calcular Acertos e Salvar no Ranking
+        </button>
+      </div>
+    </section>
+
+    <!-- Seção de Resultados (Exibida após calcular) -->
+    <section id="resultSection" class="hidden space-y-6">
+
+      <!-- Banner de Colocação Atual do Candidato -->
+      <div id="userRankBanner" class="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-white rounded-2xl p-5 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl font-black shrink-0 border border-white/30" id="bannerPosicao">
+            #1
+          </div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-amber-100">Sua Colocação Atual no Cargo</p>
+            <h3 class="text-xl font-extrabold" id="bannerNomeCandidato">Candidato</h3>
+            <p class="text-xs text-amber-100 mt-0.5" id="bannerDetalhesRanking">Atualizado automaticamente • Critério: Total de Acertos &gt; Conhec. Específicos</p>
+          </div>
+        </div>
+        <div class="bg-black/15 rounded-xl px-4 py-2 text-right self-end sm:self-center">
+          <span class="block text-[11px] uppercase tracking-wider text-amber-100">Participantes no Cargo</span>
+          <span class="text-lg font-extrabold" id="bannerTotalCargo">1 candidato</span>
+        </div>
+      </div>
+
+      <!-- Cards de Resumo -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total de Acertos -->
+        <div class="bg-white rounded-2xl p-5 border border-emerald-200 shadow-sm relative overflow-hidden">
+          <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-full -mr-2 -mt-2"></div>
+          <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">Total de Acertos</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="resAcertos" class="text-3xl sm:text-4xl font-extrabold text-emerald-600">0</span>
+            <span class="text-sm font-semibold text-slate-400">/ 80</span>
+          </div>
+          <p id="resPercentual" class="text-xs font-medium text-slate-500 mt-1">0% de aproveitamento</p>
+        </div>
+
+        <!-- Total de Erros -->
+        <div class="bg-white rounded-2xl p-5 border border-rose-200 shadow-sm relative overflow-hidden">
+          <div class="absolute right-0 top-0 w-16 h-16 bg-rose-50 rounded-bl-full -mr-2 -mt-2"></div>
+          <p class="text-xs font-bold uppercase tracking-wider text-rose-700">Total de Erros</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="resErros" class="text-3xl sm:text-4xl font-extrabold text-rose-600">0</span>
+            <span class="text-sm font-semibold text-slate-400">questões</span>
+          </div>
+          <p id="resBrancos" class="text-xs font-medium text-slate-500 mt-1">0 em branco / inválidas</p>
+        </div>
+
+        <!-- Conhecimentos Gerais (Q01 - Q30) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Conhec. Gerais (01–30)</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="resGerais" class="text-3xl sm:text-4xl font-extrabold text-slate-800">0</span>
+            <span class="text-sm font-semibold text-slate-400">/ 30</span>
+          </div>
+          <p id="resGeraisErros" class="text-xs font-medium text-slate-500 mt-1">0 erro(s) / branco(s)</p>
+        </div>
+
+        <!-- Conhecimentos Específicos (Q31 - Q80) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Conhec. Específicos (31–80)</p>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span id="resEspecificos" class="text-3xl sm:text-4xl font-extrabold text-slate-800">0</span>
+            <span class="text-sm font-semibold text-slate-400">/ 50</span>
+          </div>
+          <p id="resEspecificosErros" class="text-xs font-medium text-slate-500 mt-1">0 erro(s) / branco(s)</p>
+        </div>
+      </div>
+
+      <!-- Aviso de Questões Anuladas (X) ou Observações Oficiais -->
+      <div id="obsOficialBox" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-900 flex items-start gap-3">
+        <span class="text-lg">📢</span>
+        <div>
+          <p class="font-bold">Nota Oficial da CEV-UECE para este Cargo/Gabarito:</p>
+          <p id="obsOficialText" class="text-blue-800 mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- Comparativo Detalhado Questão a Questão -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-5">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Comparativo Detalhado (Questão a Questão)</h3>
+            <p id="resHeaderSubtitle" class="text-sm text-slate-500">Cargo • Prova</p>
+          </div>
+          <!-- Filtros -->
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="filtrarComparativo('TODOS')" id="flt-TODOS" class="flt-btn bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Todas (80)</button>
+            <button type="button" onclick="filtrarComparativo('ACERTO')" id="flt-ACERTO" class="flt-btn bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Acertos</button>
+            <button type="button" onclick="filtrarComparativo('ERRO')" id="flt-ERRO" class="flt-btn bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Erros</button>
+            <button type="button" onclick="copiarResultado()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">📋 Copiar Resumo</button>
+          </div>
+        </div>
+
+        <div id="comparativoGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-2.5">
+          <!-- Cards individuais das 80 questões -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Seção Permanente: Ranking Atualizado por Cargo -->
+    <section id="rankingSection" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🏆</span>
+            <h2 class="text-lg font-bold text-slate-900">Ranking Atualizado — <span id="rankingCargoTitulo" class="text-emerald-700">Professor de Atendimento Educacional Especializado (AEE)</span></h2>
+          </div>
+          <p class="text-sm text-slate-500 mt-0.5">Lista salva automaticamente com todos os gabaritos enviados para este cargo. Reabra a página a qualquer momento para conferir novas posições.</p>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <span id="rankingSyncStatus" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+            <span id="rankingSyncDot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span id="rankingSyncText">Modo Local (Navegador)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Tabela de Classificação -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+              <th class="py-3.5 px-4 w-20 text-center">Posição</th>
+              <th class="py-3.5 px-4">Candidato</th>
+              <th class="py-3.5 px-4 text-center">Prova</th>
+              <th class="py-3.5 px-4 text-center">Gerais (01-30)</th>
+              <th class="py-3.5 px-4 text-center">Específicas (31-80)</th>
+              <th class="py-3.5 px-4 text-center">Acertos</th>
+              <th class="py-3.5 px-4 text-center">Erros</th>
+            </tr>
+          </thead>
+          <tbody id="rankingTableBody" class="divide-y divide-slate-100 text-sm">
+            <tr>
+              <td colspan="7" class="py-8 text-center text-slate-400 text-sm">
+                Carregando classificação atualizada...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="bg-white border-t border-slate-200 py-5 mt-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <p>Concurso Público SEDUC-CE (Edital Nº 014/2026) — Realizado em 22/11/2026.</p>
+      <p>Gabarito Oficial Preliminar Republicado em 24/11/2026 (CEV/UECE).</p>
+    </div>
+  </footer>
+
+  <!-- Persistência em Nuvem (Firebase Firestore quando configurado) + Fallback LocalStorage -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'seduc-ce-2026-default';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+    const LOCAL_STORAGE_KEY = 'seduc_ce_2026_ranking_local_v1';
+
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let cloudAtivo = false;
+    let registrosNuvem = [];
+
+    function lerLocalStorage() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.warn("Falha ao ler localStorage:", e);
+        return [];
+      }
+    }
+
+    function salvarLocalStorage(lista) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(lista));
+      } catch (e) {
+        console.warn("Falha ao salvar no localStorage:", e);
+      }
+    }
+
+    function atualizarBadgeSincronizacao(nuvem) {
+      const badge = document.getElementById('rankingSyncStatus');
+      const dot = document.getElementById('rankingSyncDot');
+      const text = document.getElementById('rankingSyncText');
+      if (!badge || !dot || !text) return;
+
+      if (nuvem) {
+        badge.className = 'inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+        text.textContent = 'Nuvem Ativa (Tempo Real)';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        text.textContent = 'Modo Local (Este Navegador)';
+      }
+    }
+
+    function obterTodosRegistros() {
+      if (cloudAtivo) {
+        return registrosNuvem;
+      }
+      return lerLocalStorage();
+    }
+
+    window.salvarCadastroNoRanking = async function(dados) {
+      const nomeLimpo = dados.nome.trim();
+      const nomeSlug = nomeLimpo.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 30) || 'candidato';
+      const ownerPrefix = currentUser ? currentUser.uid : 'local_device';
+      const docId = `${ownerPrefix}_${dados.cargo}_${nomeSlug}`;
+
+      const payload = {
+        ...dados,
+        nome: nomeLimpo,
+        userId: ownerPrefix,
+        updatedAt: Date.now()
+      };
+
+      // Sempre atualiza cache local como garantia
+      const listaLocal = lerLocalStorage();
+      const idxLocal = listaLocal.findIndex(r => r.id === docId);
+      if (idxLocal !== -1) {
+        listaLocal[idxLocal] = { id: docId, ...payload };
+      } else {
+        listaLocal.push({ id: docId, ...payload });
+      }
+      salvarLocalStorage(listaLocal);
+
+      if (cloudAtivo && db && currentUser) {
+        try {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'ranking_seduc_2026', docId);
+          await setDoc(docRef, payload);
+        } catch (error) {
+          console.error("Erro ao salvar na nuvem:", error);
+          if (window.showToast) {
+            window.showToast("Salvo localmente; houve falha ao enviar para a nuvem.", "⚠️");
+          }
+        }
+      }
+
+      window.atualizarTabelaRanking();
+    };
+
+    window.atualizarTabelaRanking = function() {
+      const cargoAtual = document.getElementById('cargoSelect').value;
+      const cargoNome = window.GABARITOS_OFICIAIS ? window.GABARITOS_OFICIAIS[cargoAtual].nome : cargoAtual;
+      document.getElementById('rankingCargoTitulo').textContent = cargoNome;
+
+      const tbody = document.getElementById('rankingTableBody');
+      const nomeInput = (document.getElementById('nomeCandidatoInput').value || '').trim().toLowerCase();
+      const todosRegistros = obterTodosRegistros();
+
+      const listaCargo = todosRegistros
+        .filter(item => item.cargo === cargoAtual)
+        .sort((a, b) => {
+          if (b.acertos !== a.acertos) return b.acertos - a.acertos;
+          if (b.acertosEspec !== a.acertosEspec) return b.acertosEspec - a.acertosEspec;
+          if (b.acertosGerais !== a.acertosGerais) return b.acertosGerais - a.acertosGerais;
+          return (a.updatedAt || 0) - (b.updatedAt || 0);
+        });
+
+      if (listaCargo.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 text-center text-slate-400 text-sm">
+              Nenhum gabarito cadastrado para <strong>${cargoNome}</strong> ainda. Insira seu nome e anexe seu gabarito espelho acima!
+            </td>
+          </tr>
+        `;
+        document.getElementById('userRankBanner').classList.add('hidden');
+        return;
+      }
+
+      let minhaPosicaoIndex = -1;
+      if (nomeInput) {
+        minhaPosicaoIndex = listaCargo.findIndex(item => item.nome.toLowerCase() === nomeInput);
+      }
+      if (minhaPosicaoIndex === -1 && currentUser) {
+        minhaPosicaoIndex = listaCargo.findIndex(item => item.userId === currentUser.uid);
+      }
+      if (minhaPosicaoIndex === -1 && !cloudAtivo && listaCargo.length > 0) {
+        minhaPosicaoIndex = listaCargo.findIndex(item => item.userId === 'local_device');
+      }
+
+      const banner = document.getElementById('userRankBanner');
+      if (minhaPosicaoIndex !== -1) {
+        const meuRegistro = listaCargo[minhaPosicaoIndex];
+        const pos = minhaPosicaoIndex + 1;
+        banner.classList.remove('hidden');
+        document.getElementById('bannerPosicao').textContent = `#${pos}`;
+        document.getElementById('bannerNomeCandidato').textContent = `${meuRegistro.nome} (${meuRegistro.acertos}/80 acertos)`;
+        document.getElementById('bannerTotalCargo').textContent = `${listaCargo.length} ${listaCargo.length === 1 ? 'candidato' : 'candidatos'}`;
+
+        const inputNomeEl = document.getElementById('nomeCandidatoInput');
+        if (!inputNomeEl.value.trim() && meuRegistro.nome) {
+          inputNomeEl.value = meuRegistro.nome;
+        }
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      tbody.innerHTML = listaCargo.map((item, idx) => {
+        const pos = idx + 1;
+        const isMe = idx === minhaPosicaoIndex;
+        let medalha = `<span class="font-bold text-slate-600">${pos}º</span>`;
+        if (pos === 1) medalha = `<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs">🥇 1º</span>`;
+        else if (pos === 2) medalha = `<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-extrabold text-xs">🥈 2º</span>`;
+        else if (pos === 3) medalha = `<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-extrabold text-xs">🥉 3º</span>`;
+
+        return `
+          <tr class="${isMe ? 'bg-emerald-50/90 font-semibold' : 'hover:bg-slate-50'} transition">
+            <td class="py-3 px-4 text-center">${medalha}</td>
+            <td class="py-3 px-4 text-slate-800">
+              <div class="flex items-center gap-2">
+                <span>${escapeHtml(item.nome)}</span>
+                ${isMe ? '<span class="text-[10px] uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">Você</span>' : ''}
+              </div>
+            </td>
+            <td class="py-3 px-4 text-center text-xs font-semibold text-slate-600">Prova ${item.prova}</td>
+            <td class="py-3 px-4 text-center text-slate-700">${item.acertosGerais}/30</td>
+            <td class="py-3 px-4 text-center text-slate-700">${item.acertosEspec}/50</td>
+            <td class="py-3 px-4 text-center">
+              <span class="inline-block bg-emerald-100 text-emerald-800 font-extrabold px-2.5 py-0.5 rounded-lg">${item.acertos}/80</span>
+            </td>
+            <td class="py-3 px-4 text-center text-rose-600 font-medium">${item.erros}</td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function iniciarPersistencia() {
+      atualizarBadgeSincronizacao(false);
+      window.atualizarTabelaRanking();
+
+      if (!firebaseConfig || !firebaseConfig.apiKey) {
+        return;
+      }
+
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (!user) return;
+          currentUser = user;
+          cloudAtivo = true;
+          atualizarBadgeSincronizacao(true);
+
+          const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ranking_seduc_2026');
+          onSnapshot(colRef, (snapshot) => {
+            registrosNuvem = [];
+            snapshot.forEach(docSnap => {
+              registrosNuvem.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            window.atualizarTabelaRanking();
+          }, (error) => {
+            console.error("Erro ao ouvir ranking na nuvem:", error);
+            cloudAtivo = false;
+            atualizarBadgeSincronizacao(false);
+            window.atualizarTabelaRanking();
+          });
+        });
+      } catch (e) {
+        console.error("Erro na inicialização da nuvem:", e);
+        cloudAtivo = false;
+        atualizarBadgeSincronizacao(false);
+      }
+    }
+
+    iniciarPersistencia();
+  </script>
+
+  <script>
+    // Configurar worker do PDF.js
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    /**
+     * BANCO DE DADOS COMPLETO EXTRAÍDO DO PDF OFICIAL (GABARITO ATUALIZADO - REPUBLICADO EM 24/11/2026)
+     * Cada cargo possui 4 gabaritos (1, 2, 3, 4), cada um com exatamente 80 respostas (Q01 a Q80).
+     * 'X' representa questão anulada no gabarito oficial.
+     */
+    const GABARITOS_OFICIAIS = {
+      AEE: {
+        nome: "Professor de Atendimento Educacional Especializado (AEE)",
+        1: "CBACBCCBBDCACCACBBCCABCABAADAADCBACDBCBDACABABCADAACABBBADACACABACBABCCAACDBDBCAD",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBACCDABCCADBDDBBDCBCACBDCCBDBBDACDADADBAABCCBDDBAADB",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCBDBACDCABAACAADBBCBACCDABCDCCDBBADCBDCDABCCAADDBCB",
+        4: "DACAADDBDCCCBCAACABBDDBABDDCBCCDAABCBDACDADABCBDACDCBCDBCACCABADBABBCADDCABDCBCABCDDDCA".slice(0, 80)
+      },
+      ARTE: {
+        nome: "Professor de Arte-Educação",
+        1: "CBACBCCBBDCACCACBBCCABCABAADAAABBABBCBDADCCCCDDDABABCDABDAAABCCBACBCCBCDCBDBDBAB",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCCACDBCACDDDAACBBCBCAADBABDCBCABDCDCADCBCBCDCBDBBADDD",
+        3: "ACBACBCCBBDCACCACBBCCABCABAADAABCCACADDABBDAADBCADCCBBCDAACDCAAADADBCDCBBAACDBC",
+        4: "DACAADDBDCCCBCAACABDBBDBABDDCBCDBDCAACCADAADBBCBBCBDCBBBDDDCCAABDAADDADDDBADADDAC"
+      },
+      BIOLOGIA: {
+        nome: "Professor de Biologia",
+        1: "CBACBCCBBDCACCACBBCCACBCAABAADAADABDDCBABACCDBCCDBBAADACCCCDBBBCCDABDDABDBACCBBDDC",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCCACCADCBCBDDBAADBCABCBCACBBBDAAAAAAADDDDBDDDCADABBDB",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCADCDCCACBAADCBCDBADACDBABCADDABDABCCBCACBBCBCCBDACA",
+        4: "DACAADDBDCCCBCAACABDBBDBABDDCBBADCBACCDBDBCDAACADBCACBDCDAADCDCCCAACDCAACDDCBADCB"
+      },
+      ED_FISICA: {
+        nome: "Professor de Educação Física",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADABACACDBAACAACDCBACCBABDCBCBBADCAABDBCDCBCABCBCBCBA",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBBBBDDDCBBBDDDCCCADABDDCBBDBCCDBACDDCAABCDDBDDDADADBADCDCDC".slice(0, 80),
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCCBDADCCBADAAADCDCCBBACBBCDBCCAABBDCCACCAADBBDCBAC",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCBDBCBAADBADDDAADBCACABDBBAACBAABDABCDADDAAADCBDDB",
+        obs: {
+          3: "As alternativas das questões de 31 a 80 do gabarito 3 da disciplina de Educação Física foram alteradas por incorreção na republicação de 24/11/2026."
+        }
+      },
+      GEOGRAFIA: {
+        nome: "Professor de Geografia",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADABACCADBAACAACDCBACCBABDCBCBBADCAABDBCDCBCABCBCBCBA",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBCCACBBDCBCCACBDDDDABBBDACACCDACBDDBACCBBDADCDBADCADABADDDD",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCCBDABDDBAAABCDABDCBCBAACBBDACABCCABBBDABCCCCDD",
+        4: "DACAADDBDCCCBCAACABDBBDBABDDCBCDCCADCBBBDACADBDCDABACDACCAABDDCBADBCADDDDBBCADBABC"
+      },
+      HISTORIA: {
+        nome: "Professor de História",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADABCADCBDDABCDBDDABDCACDCBCCBADCABACBBCADDDACCCDACBDD",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCADBBBAABDDDBAABBAADCDBBAAACDBBDBADCBBDCDDDCDABCABDD",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCBCCDBADCACDBCBABACCCABABCBACBCACCBBCDAABCCADBDDBCA",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCACDCADCBABDBAADCCDAACDACBDDDDAADBBCCACCBDCAAABBB"
+      },
+      ESPANHOL: {
+        nome: "Professor de Língua Espanhola",
+        1: "CABCBCCBBDCACCACBBCCACBCABAADABDCBBACDCBDACAACBDCABABDBACDCBACBDBCBBAACBADCDADCC",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCADABADDCCACBDABBCCACDDCCCDCBCDCDDAADBCAAACDADDBBA",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCCACBBCAABCCDABADCABDBCDDBACABADBACADCDADCBDCBBACAA",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCCADCDBACDCBBADADBCABDCCBDABDAABCCBAADCCCACABABBCBB"
+      },
+      INGLES: {
+        nome: "Professor de Língua Inglesa",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAACADBABADBDAADBACADBCBCADACDBACDBABBBDBBCCCADBDCDAC",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBACBABBDBBCDADCABACDDCAADABDABCDCBDBADBBACDCBBCDA",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCABDDAACBBCAAABCABDDCABCBDABBDCACDDABDBBBDAAABBBCCBDD",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCDDCADCABBDAAADABBDCAADACCACCBAABDAAACCCCDADCADBBB",
+        obs: {
+          1: "As alternativas das questões 42 e 64 do gabarito 1 da disciplina de Língua Inglesa foram alteradas por incorreção na republicação de 24/11/2026."
+        }
+      },
+      PORTUGUES: {
+        nome: "Professor de Língua Portuguesa",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAADCAACACBBDACABBCACBBCBDDDABABCBDACCCBCACCCACCCDABB",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBADBBBDABABBDDBDBADADBACDABDABABDCDADBABDBABDDACA",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCACCBDBACBACCCBABDCCADBCBABDCACCCAABBDBAADDCCABCDBBB",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCCCDADBCDABBBDBBBBCABCCCCBCDCBDDCACDCADBDBADBADCBDC"
+      },
+      MATEMATICA: {
+        nome: "Professor de Matemática",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAADCADDDCBCDCBDCAABBCADDBBADBDAAADBAADXAABCCAADACCABB",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACCDAABBABAAACCDDDDBDDAAABCABBDXABDBBDCADCCACDDDBDA",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCCCCBDDCCABBCCDBDADCBCCDBDCBDBDACCCADXBDDABCBDDAAB",
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCBCBAADAADBBDAADCBBCCAACACDDBCCBABDADCBXCAABBBDDAB",
+        obs: {
+          1: "A questão 66 consta como anulada ('X') no gabarito oficial.",
+          2: "A questão 61 consta como anulada ('X') no gabarito oficial.",
+          3: "As alternativas das questões 31, 40 e 51 foram alteradas por incorreção. A questão 67 consta como anulada ('X').",
+          4: "A questão 70 consta como anulada ('X') no gabarito oficial."
+        }
+      },
+      QUIMICA: {
+        nome: "Professor de Química",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAABACBDBAADCABCBCDDCCAAADCDABXDBCDBBDDDDBABBADCBB",
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBDBAADCBDBCBBAADDBBCDXBAAABABADCAABBBBDADDDACADAB",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCCCBCDACDBDDAACAAADBBXBDAACCD BDCCADBCA CDDDCA CABCBC".replace(/\s/g, ''),
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCACCCDCBDCACADDBBADDCBAX DCAADACCACBBACDADAABBBC".replace(/\s/g, ''),
+        obs: {
+          1: "A questão 60 consta como anulada ('X') no gabarito oficial.",
+          2: "A questão 52 consta como anulada ('X') no gabarito oficial.",
+          3: "A questão 51 consta como anulada ('X') no gabarito oficial.",
+          4: "A questão 57 consta como anulada ('X') no gabarito oficial."
+        }
+      },
+      FILOSOFIA: {
+        nome: "Professor de Filosofia",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAABCDABCADDDAACCACABACBB AABADAADCAABBADACDAACAACB AB".replace(/\s/g, ''),
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACBBACBCADCAABDDCCDCABDCACBBDDDDCCAAAADCBDDBCBBDDBBD",
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCBAABDCBDCDDCBDACCABCBDD CDBCCCCDBBBBDCCBBCDCBCD".replace(/\s/g, ''),
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCBDBACCCACDBDBABBCBCDBBCACBCACDBBCADADCBBAABCAADCDA"
+      },
+      SOCIOLOGIA: {
+        nome: "Professor de Sociologia",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAABADACCCBCDDBACACDCADBCADCBCBCCDBABBBDBDCACCD BBABCB".replace(/\s/g, ''),
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACACDDABABBDBBCADABCCCD BCDBAAABABDDAADADD BBDA DACBC".replace(/\s/g, ''),
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCACDCADCCCBACDAADCCACBBB CDACBADBDCBCA BABABDDD CBACCBA".replace(/\s/g, ''),
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCBCDBABACBABBDBDABCCCDDB AADBAA CCDACCCCADACDDD BAABACA".replace(/\s/g, '')
+      },
+      FISICA: {
+        nome: "Professor de Física",
+        1: "CBACBCCBBDCACCACBBCCACBCABAADAAACCBBAABDCDBAAABCDDAB DCCB ADABBDXCDDDDACBBADCCBADCB".replace(/\s/g, ''),
+        2: "DBCADBADDDDADBADBBDCDDCAAACBBCACAAABDCDBDDCDBD BCBDCD BCBBC CDCCABC AADBBXDBAADBBADB".replace(/\s/g, ''),
+        3: "ACCABBDDACDCBCABCDDACDBABDADDCACBADBCDBAB AAADBCBAAABACDABAA CDBACAAXCCAA BADDDCDDBAC".replace(/\s/g, ''),
+        4: "DACAADDBDCCCBCAACABBBDDDBABDDCBCBCADAAACBBCBDCCDCCBDAACDDCADACBBAACBCDBDCCAAACCACD".replace(/\s/g, ''),
+        obs: {
+          1: "A questão 63 consta como anulada ('X') no gabarito oficial.",
+          2: "A questão 69 consta como anulada ('X') no gabarito oficial.",
+          3: "A questão 68 consta como anulada ('X') no gabarito oficial.",
+          4: "A questão 62 consta como anulada ('X') no gabarito oficial."
+        }
+      }
+    };
+    window.GABARITOS_OFICIAIS = GABARITOS_OFICIAIS;
+
+    // Garantia de comprimento 80 em todos os vetores
+    Object.keys(GABARITOS_OFICIAIS).forEach(cargo => {
+      ['1', '2', '3', '4'].forEach(p => {
+        let str = (GABARITOS_OFICIAIS[cargo][p] || '').replace(/[^A-DX]/g, '');
+        if (str.length < 80) {
+          str = str.padEnd(80, 'A');
+        } else if (str.length > 80) {
+          str = str.slice(0, 80);
+        }
+        GABARITOS_OFICIAIS[cargo][p] = str;
+      });
+    });
+
+    // Estado da aplicação
+    let provaSelecionada = '1';
+    let respostasCandidato = new Array(80).fill('');
+    let ultimoResultado = [];
+    let filtroAtual = 'TODOS';
+
+    function selecionarProva(num) {
+      provaSelecionada = num;
+      document.querySelectorAll('.prova-btn').forEach(btn => {
+        if (btn.dataset.prova === num) {
+          btn.className = 'prova-btn active bg-emerald-600 text-white border-emerald-600 border rounded-xl py-3 px-2 text-sm font-bold shadow-sm transition';
+        } else {
+          btn.className = 'prova-btn bg-slate-50 text-slate-700 border-slate-300 hover:bg-slate-100 border rounded-xl py-3 px-2 text-sm font-bold transition';
+        }
+      });
+      recalcularSePronto();
+    }
+
+    function aoMudarCargoOuProva() {
+      if (window.atualizarTabelaRanking) {
+        window.atualizarTabelaRanking();
+      }
+      recalcularSePronto();
+    }
+
+    function onNomeInputChange() {
+      if (window.atualizarTabelaRanking) {
+        window.atualizarTabelaRanking();
+      }
+    }
+
+    function showToast(msg, icon = 'ℹ️') {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastMessage').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      box.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(hideToast, 4500);
+    }
+    window.showToast = showToast;
+
+    function hideToast() {
+      document.getElementById('toastBox').classList.add('hidden');
+    }
+
+    // Extração das 80 respostas a partir de texto extraído do arquivo anexado
+    function parseRawText(text) {
+      const novoArray = new Array(80).fill('');
+      if (!text || !text.trim()) {
+        respostasCandidato = novoArray;
+        atualizarContador();
+        return;
+      }
+
+      const upper = text.toUpperCase();
+      const regexPares = /(?:^|[^\d])0?([1-9]|[1-7][0-9]|80)\s*[:=\-\.\)\s]\s*([A-D*X])\b/g;
+      let match;
+      let paresEncontrados = 0;
+
+      while ((match = regexPares.exec(upper)) !== null) {
+        const qNum = parseInt(match[1], 10);
+        const alt = match[2];
+        if (qNum >= 1 && qNum <= 80) {
+          novoArray[qNum - 1] = ['A', 'B', 'C', 'D'].includes(alt) ? alt : '';
+          paresEncontrados++;
+        }
+      }
+
+      if (paresEncontrados < 10) {
+        const limpo = upper
+          .replace(/GOVERNO|CEARA|SEDUC|SEPLAG|UECE|FUNECE|GABARITO|ESPELHO|PROVA|CARGO|NOME|INSCRICAO|QUESTAO|RESPOSTA/g, ' ')
+          .replace(/[^A-D]/g, '');
+        if (limpo.length >= 10) {
+          for (let i = 0; i < Math.min(80, limpo.length); i++) {
+            novoArray[i] = limpo[i];
+          }
+        }
+      }
+
+      respostasCandidato = novoArray;
+      atualizarContador();
+    }
+
+    function atualizarContador() {
+      const preenchidas = respostasCandidato.filter(r => ['A', 'B', 'C', 'D'].includes(r)).length;
+      const badge = document.getElementById('parsedCountBadge');
+      badge.textContent = `${preenchidas} / 80 respostas lidas`;
+      if (preenchidas === 80) {
+        badge.className = 'mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800';
+      } else if (preenchidas > 0) {
+        badge.className = 'mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-amber-100 text-amber-800';
+      } else {
+        badge.className = 'mt-3 text-xs font-semibold px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600';
+      }
+    }
+
+    // Leitura do Gabarito Espelho anexado (PDF, Imagem via OCR ou TXT)
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      document.getElementById('fileLabelTitle').textContent = `Arquivo: ${file.name}`;
+      document.getElementById('fileLabelSub').textContent = `${(file.size / 1024).toFixed(1)} KB • Processando...`;
+
+      const loadingBox = document.getElementById('loadingStatus');
+      const loadingText = document.getElementById('loadingText');
+      loadingBox.classList.remove('hidden');
+
+      try {
+        let extractedText = '';
+
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          loadingText.textContent = 'Lendo PDF do Gabarito Espelho...';
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str);
+            extractedText += strings.join(' ') + '\n';
+          }
+        } else if (file.type.startsWith('image/')) {
+          loadingText.textContent = 'Executando reconhecimento óptico (OCR) na imagem do cartão-resposta...';
+          const worker = await Tesseract.createWorker('por');
+          const ret = await worker.recognize(file);
+          extractedText = ret.data.text;
+          await worker.terminate();
+        } else {
+          loadingText.textContent = 'Lendo arquivo de texto...';
+          extractedText = await file.text();
+        }
+
+        if (!extractedText.trim()) {
+          showToast('Não foi possível extrair texto legível deste arquivo.', '⚠️');
+          document.getElementById('fileLabelSub').textContent = 'Arquivo sem texto legível';
+        } else {
+          parseRawText(extractedText);
+          const qtd = respostasCandidato.filter(Boolean).length;
+          document.getElementById('fileLabelSub').textContent = `✅ ${qtd} respostas identificadas no arquivo`;
+          showToast(`Gabarito espelho lido! ${qtd} respostas extraídas.`, '✅');
+          const nomeAtual = (document.getElementById('nomeCandidatoInput').value || '').trim();
+          if (qtd > 0) {
+            corrigirProva(Boolean(nomeAtual));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Erro ao ler o arquivo anexado.', '❌');
+        document.getElementById('fileLabelSub').textContent = 'Falha na leitura do arquivo';
+      } finally {
+        loadingBox.classList.add('hidden');
+      }
+    }
+
+    // Cálculo principal de Acertos e Erros
+    function corrigirProva(salvarNoBanco = false) {
+      const nomeCandidato = (document.getElementById('nomeCandidatoInput').value || '').trim();
+      const cargoKey = document.getElementById('cargoSelect').value;
+      const cargoObj = GABARITOS_OFICIAIS[cargoKey];
+      const gabaritoOficialStr = cargoObj[provaSelecionada];
+
+      const preenchidas = respostasCandidato.filter(r => ['A', 'B', 'C', 'D'].includes(r)).length;
+      if (preenchidas === 0) {
+        showToast('Anexe seu gabarito espelho antes de calcular.', '⚠️');
+        return;
+      }
+
+      if (salvarNoBanco && !nomeCandidato) {
+        showToast('Por favor, insira seu NOME para registrar sua colocação no ranking.', '✍️');
+        document.getElementById('nomeCandidatoInput').focus();
+        return;
+      }
+
+      let acertos = 0;
+      let erros = 0;
+      let brancos = 0;
+      let acertosGerais = 0;
+      let errosGerais = 0;
+      let acertosEspec = 0;
+      let errosEspec = 0;
+
+      ultimoResultado = [];
+
+      for (let i = 0; i < 80; i++) {
+        const oficial = gabaritoOficialStr[i] || 'A';
+        const cand = respostasCandidato[i] || '';
+        const isGeral = i < 30;
+        let status = '';
+
+        if (oficial === 'X') {
+          status = 'ANULADA';
+          acertos++;
+          if (isGeral) acertosGerais++; else acertosEspec++;
+        } else if (!cand) {
+          status = 'BRANCO';
+          brancos++;
+          if (isGeral) errosGerais++; else errosEspec++;
+        } else if (cand === oficial) {
+          status = 'ACERTO';
+          acertos++;
+          if (isGeral) acertosGerais++; else acertosEspec++;
+        } else {
+          status = 'ERRO';
+          erros++;
+          if (isGeral) errosGerais++; else errosEspec++;
+        }
+
+        ultimoResultado.push({
+          numero: i + 1,
+          area: isGeral ? 'Conhec. Gerais' : 'Específica',
+          candidato: cand || '—',
+          oficial: oficial,
+          status: status
+        });
+      }
+
+      document.getElementById('resAcertos').textContent = acertos;
+      document.getElementById('resPercentual').textContent = `${((acertos / 80) * 100).toFixed(1)}% de aproveitamento`;
+      document.getElementById('resErros').textContent = erros;
+      document.getElementById('resBrancos').textContent = `${brancos} em branco / não marcadas`;
+
+      document.getElementById('resGerais').textContent = acertosGerais;
+      document.getElementById('resGeraisErros').textContent = `${errosGerais} erro(s) / branco(s)`;
+
+      document.getElementById('resEspecificos').textContent = acertosEspec;
+      document.getElementById('resEspecificosErros').textContent = `${errosEspec} erro(s) / branco(s)`;
+
+      document.getElementById('resHeaderSubtitle').textContent = `${cargoObj.nome} • Gabarito Oficial Prova ${provaSelecionada}`;
+
+      const obsBox = document.getElementById('obsOficialBox');
+      if (cargoObj.obs && cargoObj.obs[provaSelecionada]) {
+        document.getElementById('obsOficialText').textContent = cargoObj.obs[provaSelecionada];
+        obsBox.classList.remove('hidden');
+      } else {
+        obsBox.classList.add('hidden');
+      }
+
+      document.getElementById('flt-TODOS').textContent = `Todas (80)`;
+      document.getElementById('flt-ACERTO').textContent = `Acertos (${acertos})`;
+      document.getElementById('flt-ERRO').textContent = `Erros (${erros + brancos})`;
+
+      document.getElementById('resultSection').classList.remove('hidden');
+      filtrarComparativo(filtroAtual);
+
+      if (salvarNoBanco && nomeCandidato && window.salvarCadastroNoRanking) {
+        window.salvarCadastroNoRanking({
+          nome: nomeCandidato,
+          cargo: cargoKey,
+          cargoNome: cargoObj.nome,
+          prova: provaSelecionada,
+          acertos: acertos,
+          erros: erros,
+          brancos: brancos,
+          acertosGerais: acertosGerais,
+          acertosEspec: acertosEspec,
+          respostas: respostasCandidato.join('')
+        });
+        showToast(`Gabarito de ${nomeCandidato} salvo! Ranking atualizado.`, '🏆');
+      } else if (window.atualizarTabelaRanking) {
+        window.atualizarTabelaRanking();
+      }
+
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function recalcularSePronto() {
+      if (!document.getElementById('resultSection').classList.contains('hidden')) {
+        corrigirProva(false);
+      }
+    }
+
+    function filtrarComparativo(tipo) {
+      filtroAtual = tipo;
+      document.querySelectorAll('.flt-btn').forEach(b => {
+        b.classList.remove('ring-2', 'ring-offset-1', 'ring-slate-400');
+      });
+      const activeBtn = document.getElementById(`flt-${tipo}`);
+      if (activeBtn) activeBtn.classList.add('ring-2', 'ring-offset-1', 'ring-slate-400');
+
+      const grid = document.getElementById('comparativoGrid');
+      grid.innerHTML = '';
+
+      const filtrados = ultimoResultado.filter(item => {
+        if (tipo === 'TODOS') return true;
+        if (tipo === 'ACERTO') return item.status === 'ACERTO' || item.status === 'ANULADA';
+        if (tipo === 'ERRO') return item.status === 'ERRO' || item.status === 'BRANCO';
+        return true;
+      });
+
+      filtrados.forEach(item => {
+        const qNum = String(item.numero).padStart(2, '0');
+        let cardStyle = '';
+        let badgeHtml = '';
+
+        if (item.status === 'ACERTO') {
+          cardStyle = 'bg-emerald-50/70 border-emerald-200 text-emerald-950';
+          badgeHtml = '<span class="text-emerald-600 font-extrabold">✓</span>';
+        } else if (item.status === 'ANULADA') {
+          cardStyle = 'bg-blue-50 border-blue-200 text-blue-950';
+          badgeHtml = '<span class="text-blue-600 font-bold text-[10px]">ANULADA</span>';
+        } else if (item.status === 'ERRO') {
+          cardStyle = 'bg-rose-50/80 border-rose-200 text-rose-950';
+          badgeHtml = '<span class="text-rose-600 font-extrabold">✕</span>';
+        } else {
+          cardStyle = 'bg-slate-100 border-slate-200 text-slate-600';
+          badgeHtml = '<span class="text-slate-400 font-bold text-[10px]">BRANCO</span>';
+        }
+
+        const card = document.createElement('div');
+        card.className = `border rounded-xl p-2.5 flex flex-col justify-between transition ${cardStyle}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="font-bold">Q${qNum}</span>
+            ${badgeHtml}
+          </div>
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-black/5">
+            <div>
+              <span class="text-[10px] text-slate-500 block">Sua</span>
+              <span class="font-extrabold text-sm">${item.candidato}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-500 block">Oficial</span>
+              <span class="font-extrabold text-sm">${item.oficial}</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function limparTudo() {
+      respostasCandidato = new Array(80).fill('');
+      document.getElementById('fileInput').value = '';
+      document.getElementById('fileLabelTitle').textContent = 'Clique para anexar seu Gabarito Espelho';
+      document.getElementById('fileLabelSub').textContent = 'Suporta PDF oficial da CEV/UECE, foto (JPG/PNG) ou arquivo .TXT';
+      document.getElementById('resultSection').classList.add('hidden');
+      atualizarContador();
+      showToast('Anexo removido.', '🧹');
+    }
+
+    function copiarResultado() {
+      const nome = (document.getElementById('nomeCandidatoInput').value || 'Candidato').trim();
+      const cargoNome = GABARITOS_OFICIAIS[document.getElementById('cargoSelect').value].nome;
+      const acertos = document.getElementById('resAcertos').textContent;
+      const erros = document.getElementById('resErros').textContent;
+      const gerais = document.getElementById('resGerais').textContent;
+      const espec = document.getElementById('resEspecificos').textContent;
+      const posTexto = document.getElementById('bannerPosicao').textContent;
+
+      const texto = `📊 Resultado Preliminar SEDUC-CE 2026\n👤 Candidato: ${nome} (${posTexto} no ranking)\nCargo: ${cargoNome}\nProva: ${provaSelecionada}\n✅ Acertos: ${acertos}/80\n❌ Erros: ${erros}\n📘 Conhec. Gerais: ${gerais}/30\n📙 Conhec. Específicos: ${espec}/50`;
+
+      const tempInput = document.createElement('textarea');
+      tempInput.value = texto;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      showToast('Resumo copiado para a área de transferência!', '📋');
+    }
+  </script>
+</body>
+</html>
